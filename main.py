@@ -11,7 +11,9 @@ sys.path.append("../")
 from activation import ReluLayer
 from activation import SigmoidLayer
 from activation import SoftmaxLayer
+from layers.pooling import MaxPoolLayer
 from layers.dense import DenseLayer
+from layers.flatten import FlattenLayer
 from layers.convolutional import ConvLayer2D, SuperFastConvLayer2D
 from sequential import SequentialModel
 from utils.core import convert_categorical2one_hot, convert_prob2categorical
@@ -115,5 +117,5 @@ df_cm = pd.DataFrame(
 )
 plt.figure(figsize = (16,16))
 sn.heatmap(df_cm, annot=True, cmap="YlGnBu", linewidths=.5, cbar=False)
-plt.savefig("../viz/cm.png", dpi=100)
+plt.savefig("./viz/cm.png", dpi=100)
 plt.show()

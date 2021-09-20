@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+
 try:
     from cs231n.fast_conv_cython import col2im_cython, im2col_cython
 except ImportError:
-    pass
+    print('run python setup.py build_ext --inplace')
+
 
 
 from typing import Tuple, Optional
