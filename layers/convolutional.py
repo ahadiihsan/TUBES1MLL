@@ -28,6 +28,7 @@ class ConvLayer2D(Layer):
         self._w, self._b = w, b
         self._padding = padding
         self._stride = stride
+        self._k = None
         self._dw, self._db = None, None
         self._a_prev = None
 
@@ -41,6 +42,11 @@ class ConvLayer2D(Layer):
         w = np.random.randn(*kernel_shape, filters) * 0.1
         b = np.random.randn(filters) * 0.1
         return cls(w=w, b=b, padding=padding, stride=stride)
+
+    @classmethod
+    def get_kernel_shape(self) :
+        print("test")
+        return self.w.shape
 
     @property
     def weights(self) -> Optional[Tuple[np.array, np.array]]:
