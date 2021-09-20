@@ -4,13 +4,13 @@ import time
 
 import numpy as np
 
-from src.base import Layer, Optimizer
-from src.utils.core import generate_batches, format_time
-from src.utils.metrics import softmax_accuracy, softmax_cross_entropy
+from base import Layer
+from utils.core import generate_batches, format_time
+from utils.metrics import softmax_accuracy, softmax_cross_entropy
 
 
 class SequentialModel:
-    def __init__(self, layers: List[Layer], optimizer: Optimizer):
+    def __init__(self, layers: List[Layer]):
         self._layers = layers
 
     def predict(self, x: np.array) -> np.array:
