@@ -124,7 +124,7 @@ lines(
     label_2="test",
     title="ACCURACY",
     fig_size=(16,10),
-    path="../viz/cnn_acc.png"
+    path="./viz/cnn_acc.png"
 )
 
 lines(
@@ -134,7 +134,7 @@ lines(
     label_2="test",
     title="LOSS",
     fig_size=(16,10),
-    path="../viz/cnn_loss.png"
+    path="./viz/cnn_loss.png"
 )
 
 
