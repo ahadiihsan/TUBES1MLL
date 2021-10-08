@@ -115,8 +115,8 @@ df_cm = pd.DataFrame(
     range(10),
     range(10)
 )
-# plt.figure(figsize = (16,16))
-# sn.heatmap(df_cm, annot=True, cmap="YlGnBu", linewidths=.5, cbar=False)
-# plt.savefig("./viz/cm.png", dpi=100)
-# plt.show()
+plt.figure(figsize = (16,16))
+sn.heatmap(df_cm, annot=True, cmap="YlGnBu", linewidths=.5, cbar=False)
+plt.savefig("./viz/cm.png", dpi=100)
+plt.show()
 model.print_model(X_valid)
