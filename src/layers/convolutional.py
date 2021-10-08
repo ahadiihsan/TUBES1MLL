@@ -83,6 +83,37 @@ class ConvLayer2D(Layer):
 
         return output + self._b
 
+    def backward_pass(self, da_curr: np.array) -> np.array:
+        _, h_out, w_out, _ = da_curr.shape
+        n, h_in, w_in, _ = self._a_prev.shape
+        h_f, w_f, _, _ = self._w.shape
+        pad = self.calculate_pad_dims()
+        a_prev_pad = self.pad(array=self._a_prev, pad=pad)
+        output = np.zeros_like(a_prev_pad)
+
+        self._db = da_curr.sum(axis=(0, 1, 2)) / n
+        self._dw = np.zeros_like(self._w)
+
+        for i in range(h_out):
+            for j in range(w_out):
+                h_start = i * self._stride
+                h_end = h_start + h_f
+                w_start = j * self._stride
+                w_end = w_start + w_f
+                output[:, h_start:h_end, w_start:w_end, :] += np.sum(
+                    self._w[np.newaxis, :, :, :, :] *
+                    da_curr[:, i:i+1, j:j+1, np.newaxis, :],
+                    axis=4
+                )
+                self._dw += np.sum(
+                    a_prev_pad[:, h_start:h_end, w_start:w_end, :, np.newaxis] *
+                    da_curr[:, i:i+1, j:j+1, np.newaxis, :],
+                    axis=0
+                )
+
+        self._dw /= n
+        return output[:, pad[0]:pad[0]+h_in, pad[1]:pad[1]+w_in, :]
+
     def set_wights(self, w: np.array, b: np.array) -> None:
         self._w = w
         self._b = b
@@ -155,6 +186,29 @@ class FastConvLayer2D(ConvLayer2D):
 
         return output.transpose(3, 1, 2, 0) + self._b
 
+    def backward_pass(self, da_curr: np.array) -> np.array:
+        n, h_out, w_out, _ = self.calculate_output_dims(
+            input_dims=self._a_prev.shape)
+        h_f, w_f, _, n_f = self._w.shape
+        pad = self.calculate_pad_dims()
+
+        self._db = da_curr.sum(axis=(0, 1, 2)) / n
+        da_curr_reshaped = da_curr.transpose(3, 1, 2, 0).reshape(n_f, -1)
+
+        w = np.transpose(self._w, (3, 2, 0, 1))
+        dw = da_curr_reshaped.dot(self._cols.T).reshape(w.shape)
+        self._dw = np.transpose(dw, (2, 3, 1, 0))
+
+        output_cols = w.reshape(n_f, -1).T.dot(da_curr_reshaped)
+
+        output = col2im(
+            cols=output_cols,
+            array_shape=np.moveaxis(self._a_prev, -1, 1).shape,
+            filter_dim=(h_f, w_f),
+            pad=pad[0],
+            stride=self._stride
+        )
+        return np.transpose(output, (0, 2, 3, 1))
 
 
 class SuperFastConvLayer2D(ConvLayer2D):
@@ -189,3 +243,32 @@ class SuperFastConvLayer2D(ConvLayer2D):
         output = result.reshape(n_f, h_out, w_out, n)
 
         return output.transpose(3, 1, 2, 0) + self._b
+
+    def backward_pass(self, da_curr: np.array) -> np.array:
+        n, h_out, w_out, _ = self.calculate_output_dims(
+            input_dims=self._a_prev.shape)
+        h_f, w_f, _, n_f = self._w.shape
+        pad = self.calculate_pad_dims()
+
+        self._db = da_curr.sum(axis=(0, 1, 2)) / n
+        da_curr_reshaped = da_curr.transpose(3, 1, 2, 0).reshape(n_f, -1)
+
+        w = np.transpose(self._w, (3, 2, 0, 1))
+        dw = da_curr_reshaped.dot(self._cols.T).reshape(w.shape)
+        self._dw = np.transpose(dw, (2, 3, 1, 0))
+
+        output_cols = w.reshape(n_f, -1).T.dot(da_curr_reshaped)
+
+        a_prev = np.moveaxis(self._a_prev, -1, 1)
+        output = col2im_cython(
+            output_cols,
+            a_prev.shape[0],
+            a_prev.shape[1],
+            a_prev.shape[2],
+            a_prev.shape[3],
+            h_f,
+            w_f,
+            pad[0],
+            self._stride
+        )
+        return np.transpose(output, (0, 2, 3, 1))

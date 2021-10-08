@@ -33,3 +33,13 @@ class DenseLayer(Layer):
     def forward_pass(self, a_prev: np.array, training: bool) -> np.array:
         self._a_prev = np.array(a_prev, copy=True)
         return np.dot(a_prev, self._w.T) + self._b
+
+    def backward_pass(self, da_curr: np.array) -> np.array:
+        n = self._a_prev.shape[0]
+        self._dw = np.dot(da_curr.T, self._a_prev) / n
+        self._db = np.sum(da_curr, axis=0, keepdims=True) / n
+        return np.dot(da_curr, self._w)
+
+    def set_wights(self, w: np.array, b: np.array) -> None:
+        self._w = w
+        self._b = b

@@ -16,16 +16,17 @@ from layers.dense import DenseLayer
 from layers.flatten import FlattenLayer
 from layers.convolutional import ConvLayer2D, SuperFastConvLayer2D
 from sequential import SequentialModel
+from optimizers.gradient_descent import GradientDescent
 from utils.core import convert_categorical2one_hot, convert_prob2categorical
 from utils.metrics import softmax_accuracy
 from utils.plots import lines
 
 # number of samples in the train data set
-N_TRAIN_SAMPLES = 50000
+N_TRAIN_SAMPLES = 5000
 # number of samples in the test data set
-N_TEST_SAMPLES = 2500
+N_TEST_SAMPLES = 250
 # number of samples in the validation data set
-N_VALID_SAMPLES = 250
+N_VALID_SAMPLES = 25
 # number of classes
 N_CLASSES = 10
 # image size
@@ -99,9 +100,43 @@ layers = [
     SoftmaxLayer()
 ]
 
+optimizer = GradientDescent(lr=0.003)
+
 model = SequentialModel(
     layers=layers,
+    optimizer=optimizer
 )
+
+model.train(
+    x_train=X_train,
+    y_train=y_train,
+    x_test=X_test,
+    y_test=y_test,
+    epochs=2,
+    bs=100,
+    verbose=True
+)
+
+lines(
+    y_1=np.array(model.history["train_acc"]),
+    y_2=np.array(model.history["test_acc"]),
+    label_1="train",
+    label_2="test",
+    title="ACCURACY",
+    fig_size=(16,10),
+    path="../viz/cnn_acc.png"
+)
+
+lines(
+    y_1=np.array(model.history["train_loss"]),
+    y_2=np.array(model.history["test_loss"]),
+    label_1="train",
+    label_2="test",
+    title="LOSS",
+    fig_size=(16,10),
+    path="../viz/cnn_loss.png"
+)
+
 
 y_hat = model.predict(X_valid)
 acc = softmax_accuracy(y_hat, y_valid)

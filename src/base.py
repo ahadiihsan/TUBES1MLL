@@ -16,3 +16,16 @@ class Layer(ABC):
     @abstractmethod
     def forward_pass(self, a_prev: np.array, training: bool) -> np.array:
         pass
+
+    @abstractmethod
+    def backward_pass(self, da_curr: np.array) -> np.array:
+        pass
+
+    def set_wights(self, w: np.array, b: np.array) -> None:
+        pass
+
+class Optimizer(ABC):
+
+    @abstractmethod
+    def update(self, layers: List[Layer]) -> None:
+        pass
