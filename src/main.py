@@ -17,9 +17,24 @@ from layers.flatten import FlattenLayer
 from layers.convolutional import ConvLayer2D, SuperFastConvLayer2D
 from sequential import SequentialModel
 from optimizers.gradient_descent import GradientDescent
-from utils.core import convert_categorical2one_hot, convert_prob2categorical
+from utils.core import convert_categorical2one_hot, convert_prob2categorical, load_model, save_model
 from utils.metrics import softmax_accuracy
 from utils.plots import lines
+
+temp = input("load file: (y/n): ")
+while temp != "y" and temp != "n":
+    print("enter y or n correctly\n")
+    temp = input("load file: (y/n)")
+
+from_file = False
+if temp=="y":
+    from_file = True
+
+learning_rate = float(input("learning rate: "))
+print(learning_rate)
+epoch = int(input("epoch: "))
+momentum = int(input("momentum: "))
+batch_size = int(input("batch size: "))
 
 # number of samples in the train data set
 N_TRAIN_SAMPLES = 5000
@@ -100,22 +115,34 @@ layers = [
     SoftmaxLayer()
 ]
 
-optimizer = GradientDescent(lr=0.003)
+optimizer = GradientDescent(lr=learning_rate)
 
-model = SequentialModel(
-    layers=layers,
-    optimizer=optimizer
-)
+if from_file:
+    try:
+        model = load_model("learning_model")
+        print("load success")
+    except Exception as e:
+        model = SequentialModel(
+        layers=layers,
+        optimizer=optimizer
+        )
+else:
+    model = SequentialModel(
+        layers=layers,
+        optimizer=optimizer
+    )
 
 model.train(
     x_train=X_train,
     y_train=y_train,
     x_test=X_test,
     y_test=y_test,
-    epochs=2,
-    bs=100,
+    epochs=epoch,
+    bs=batch_size,
     verbose=True
 )
+
+save_model(model,"learning_model")
 
 lines(
     y_1=np.array(model.history["train_acc"]),

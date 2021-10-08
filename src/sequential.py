@@ -31,13 +31,13 @@ class SequentialModel:
         verbose: bool = False,
         callback: Optional[Callable[[SequentialModel], None]] = None
         ) -> None:
-        print("halo aku disini")
+        print("starting training")
         for epoch in range(epochs):
-            print("halo aku epoch")
+            print("in epoch")
             epoch_start = time.time()
             y_hat = np.zeros_like(y_train)
             for idx, (x_batch, y_batch) in enumerate(generate_batches(x_train, y_train, bs)):
-                print("dalem for nih")
+                print("in batch")
                 y_hat_batch = self._forward(x_batch, training=True)
                 activation = y_hat_batch - y_batch
                 self._backward(activation)
