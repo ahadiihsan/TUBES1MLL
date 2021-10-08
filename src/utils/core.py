@@ -1,6 +1,6 @@
 import numpy as np
 import time
-
+import pickle
 
 def convert_categorical2one_hot(y: np.array) -> np.array:
     one_hot_matrix = np.zeros((y.size, y.max() + 1))
@@ -18,6 +18,14 @@ def convert_prob2one_hot(probs: np.array) -> np.array:
     one_hot_matrix[np.arange(probs.shape[0]), class_idx] = 1
     return one_hot_matrix
 
+
+def save_model(model, filename):
+    with open(filename, "wb") as file:
+        pickle.dump(model, file)
+
+def load_model(filename):
+    with open(filename, "rb") as file:
+        return pickle.load(file)
 
 def generate_batches(x: np.array, y: np.array, batch_size: int):
     for i in range(0, x.shape[0], batch_size):
