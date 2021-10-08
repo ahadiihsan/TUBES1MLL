@@ -2,7 +2,7 @@ import numpy as np
 import seaborn as sn
 import pandas as pd
 import matplotlib.pyplot as plt
-from tensorflow.keras.datasets import fashion_mnist
+from tensorflow.keras.datasets import mnist
 from sklearn.metrics import confusion_matrix
 
 import sys
@@ -38,9 +38,9 @@ if temp=="y":
         y = input("Train model: (y/n)")
     if y == "n":
         train = False
+learning_rate = float(input("learning rate: "))
 
 if train:
-    learning_rate = float(input("learning rate: "))
     epoch = int(input("epoch: "))
     momentum = int(input("momentum: "))
     batch_size = int(input("batch size: "))
@@ -50,13 +50,13 @@ N_TRAIN_SAMPLES = 5000
 # number of samples in the test data set
 N_TEST_SAMPLES = 250
 # number of samples in the validation data set
-N_VALID_SAMPLES = 25
+N_VALID_SAMPLES = 10000
 # number of classes
 N_CLASSES = 10
 # image size
 IMAGE_SIZE = 28
 
-((trainX, trainY), (testX, testY)) = fashion_mnist.load_data()
+((trainX, trainY), (testX, testY)) = mnist.load_data()
 print("trainX shape:", trainX.shape)
 print("trainY shape:", trainY.shape)
 print("testX shape:", testX.shape)
@@ -125,6 +125,7 @@ layers = [
 ]
 
 
+optimizer = GradientDescent(lr=learning_rate)
 if from_file:
     try:
         model = load_model("learning_model")
@@ -141,7 +142,6 @@ else:
     )
 
 if train:
-    optimizer = GradientDescent(lr=learning_rate)
     model.train(
         x_train=X_train,
         y_train=y_train,
