@@ -26,15 +26,24 @@ while temp != "y" and temp != "n":
     print("enter y or n correctly\n")
     temp = input("load file: (y/n)")
 
+
 from_file = False
+train = True
+
 if temp=="y":
     from_file = True
+    y = input("Train model: (y/n): ")
+    while y != "y" and y != "n":
+        print("enter y or n correctly\n")
+        y = input("Train model: (y/n)")
+    if y == "n":
+        train = False
 
-learning_rate = float(input("learning rate: "))
-print(learning_rate)
-epoch = int(input("epoch: "))
-momentum = int(input("momentum: "))
-batch_size = int(input("batch size: "))
+if train:
+    learning_rate = float(input("learning rate: "))
+    epoch = int(input("epoch: "))
+    momentum = int(input("momentum: "))
+    batch_size = int(input("batch size: "))
 
 # number of samples in the train data set
 N_TRAIN_SAMPLES = 5000
@@ -115,7 +124,6 @@ layers = [
     SoftmaxLayer()
 ]
 
-optimizer = GradientDescent(lr=learning_rate)
 
 if from_file:
     try:
@@ -132,17 +140,19 @@ else:
         optimizer=optimizer
     )
 
-model.train(
-    x_train=X_train,
-    y_train=y_train,
-    x_test=X_test,
-    y_test=y_test,
-    epochs=epoch,
-    bs=batch_size,
-    verbose=True
-)
+if train:
+    optimizer = GradientDescent(lr=learning_rate)
+    model.train(
+        x_train=X_train,
+        y_train=y_train,
+        x_test=X_test,
+        y_test=y_test,
+        epochs=epoch,
+        bs=batch_size,
+        verbose=True
+    )
 
-save_model(model,"learning_model")
+    save_model(model,"learning_model")
 
 lines(
     y_1=np.array(model.history["train_acc"]),
